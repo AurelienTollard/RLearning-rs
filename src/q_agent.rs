@@ -12,7 +12,13 @@ pub struct QAgent<S: Eq + Hash, A> {
     previous_action: Option<A>,
     previous_action_index: usize,
     action_vec: Vec<A>,
-    reward: f64,
+    reward: f32,
+    params: QParams
+}
+
+pub struct QParams{
+    pub alpha: f32,
+    pub gamma: f32
 }
 
 impl<S: Eq + Hash + Clone, A: Clone> Agent<S, A> for QAgent<S, A> {
@@ -49,7 +55,7 @@ impl<S: Eq + Hash + Clone, A: Clone> Agent<S, A> for QAgent<S, A> {
         self.current_action.as_ref().unwrap()
     }
 
-    fn update_reward(&mut self, reward: f64) {
+    fn update_reward(&mut self, reward: f32) {
         self.reward = reward;
     }
 
@@ -63,7 +69,7 @@ impl<S: Eq + Hash + Clone, A: Clone> Agent<S, A> for QAgent<S, A> {
 
 impl<S: Eq + Hash + Clone, A: Clone> QAgent<S, A> {
     /// Creates a new random agent that performs actions from the given space
-    pub fn new(actions: Vec<A>) -> QAgent<S, A> {
+    pub fn new(actions: Vec<A>, params: QParams) -> QAgent<S, A> {
         QAgent {
             action_vec: actions,
             reward: 0.0,
@@ -74,25 +80,29 @@ impl<S: Eq + Hash + Clone, A: Clone> QAgent<S, A> {
             previous_action: None,
             previous_action_index: 0,
             current_action_index: 0,
+            params
         }
     }
 
-    pub fn qlearning_step(&mut self, reward: f64, new_state: S) -> &A {
+    pub fn qlearning_step(&mut self, reward: f32, new_state: S) -> A {
         self.set_new_state(new_state);
         self.update_reward(reward);
+        let action = self.choose_action().clone();
         self.update_qtable();
-        self.choose_action()
+        action
     }
 
     fn update_qtable(&mut self) {
         if self.previous_state.is_none(){
             return;
         }
+        let next_max = self.q_table.get(self.current_state.as_ref().unwrap()).unwrap()[self.current_action_index];
         let qaction = self.q_table.get_mut(self.previous_state.as_ref().unwrap());
         if qaction.is_none(){
             return;
         }
 
-        qaction.unwrap()[self.current_action_index] += self.reward as f32;
+        let old_value = qaction.as_ref().unwrap()[self.current_action_index];
+        qaction.unwrap()[self.current_action_index] = (1.0 - self.params.alpha) * old_value + self.params.alpha * (self.reward + self.params.gamma * next_max);
     }
 }

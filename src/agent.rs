@@ -6,5 +6,5 @@ pub trait Agent<S, A> {
     fn get_state(&self) -> Option<&S>;
     fn set_new_state(&mut self, state: S);
     fn choose_action(&mut self) -> &A;
-    fn update_reward(&mut self, reward: f64);
+    fn update_reward(&mut self, reward: f32);
 }

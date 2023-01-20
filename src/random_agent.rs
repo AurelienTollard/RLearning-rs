@@ -6,7 +6,7 @@ use std::hash::Hash;
 pub struct RandomAgent<S: Eq + Hash, A> {
     current_state: Option<S>,
     action_vec: Vec<A>,
-    reward: f64,
+    reward: f32,
 }
 
 impl<S: Eq + Hash, A> RandomAgent<S, A> {
@@ -29,7 +29,7 @@ impl<S: Eq + Hash, A> Agent<S, A> for RandomAgent<S, A> {
         &self.action_vec[rand::thread_rng().gen_range(0..self.action_vec.len())]
     }
 
-    fn update_reward(&mut self, reward: f64) {
+    fn update_reward(&mut self, reward: f32) {
         self.reward = reward;
     }
 
