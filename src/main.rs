@@ -1,14 +1,29 @@
-use agent::Agent;
-use random_agent::RandomAgent;
+use q_agent::QAgent;
 
 pub mod agent;
 pub mod q_agent;
 pub mod random_agent;
 
-fn main() {
-    let mut agent = RandomAgent::<u32, u32>::new(vec![1, 2, 3, 4]);
+#[derive(Clone, Eq, Hash, PartialEq)]
+struct StateSpace{
+    x: u32
+}
 
+#[derive(Clone)]
+struct Action{
+    up: bool
+}
+
+fn main() {
+    let mut agent = QAgent::<StateSpace, Action>::new(vec![Action{ up: true }, Action{ up: false }]);
+
+    let mut current_x: u32 = 0;
+    let mut action: &Action;
+    let mut reward: f32 = 0.0;
     for _ in 0..100 {
-        println!("{}", agent.choose_action());
+        action = agent.qlearning_step(reward as f64, StateSpace { x: current_x });
+        current_x = (current_x + 1) % 5;
+        reward = if action.up{10.0}else{-0.1}; 
+        println!("action up = {}", action.up);
     }
 }
