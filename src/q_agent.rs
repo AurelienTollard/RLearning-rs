@@ -103,6 +103,6 @@ impl<S: Eq + Hash + Clone, A: Clone> QAgent<S, A> {
         }
 
         let old_value = qaction.as_ref().unwrap()[self.current_action_index];
-        qaction.unwrap()[self.current_action_index] = (1.0 - self.params.alpha) * old_value + self.params.alpha * (self.reward + self.params.gamma * next_max);
+        qaction.unwrap()[self.previous_action_index] = (1.0 - self.params.alpha) * old_value + self.params.alpha * (self.reward + self.params.gamma * next_max);
     }
 }

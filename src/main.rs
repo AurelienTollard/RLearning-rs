@@ -26,10 +26,10 @@ fn main() {
     let mut current_x: u32 = 0;
     let mut action: Action;
     let mut reward: f32 = 0.0;
-    for _ in 0..100 {
+    for _ in 0..10 {
         action = agent.qlearning_step(reward, StateSpace { x: current_x });
         current_x = (current_x + 1) % 5;
-        reward = if action.up { 10.0 } else { -0.1 };
+        reward = if action.up { -1.0 } else { 10.0 };
         println!("action up = {}", action.up);
     }
 }
