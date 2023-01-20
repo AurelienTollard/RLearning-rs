@@ -8,6 +8,7 @@ pub struct QAgent<S: Eq + Hash, A> {
     current_state: Option<S>,
     previous_state: Option<S>,
     current_action: Option<A>,
+    current_action_index: usize,
     previous_action: Option<A>,
     previous_action_index: usize,
     action_vec: Vec<A>,
@@ -40,8 +41,10 @@ impl<S: Eq + Hash + Clone, A: Clone> Agent<S, A> for QAgent<S, A> {
         let action = &self.action_vec[action_index];
 
         if self.current_action.is_some() {
+            self.previous_action_index = self.current_action_index;
             self.previous_action = self.current_action.clone();
         }
+        self.current_action_index = action_index;
         self.current_action = Some(action.clone());
         self.current_action.as_ref().unwrap()
     }
@@ -70,6 +73,7 @@ impl<S: Eq + Hash + Clone, A: Clone> QAgent<S, A> {
             current_action: None,
             previous_action: None,
             previous_action_index: 0,
+            current_action_index: 0,
         }
     }
 
@@ -80,7 +84,15 @@ impl<S: Eq + Hash + Clone, A: Clone> QAgent<S, A> {
         self.choose_action()
     }
 
-    pub fn update_qtable(&mut self) {
-        self.q_table.get_mut(self.previous_state.as_ref().unwrap()).unwrap()[self.previous_action_index] = 0.0;
+    fn update_qtable(&mut self) {
+        if self.previous_state.is_none(){
+            return;
+        }
+        let qaction = self.q_table.get_mut(self.previous_state.as_ref().unwrap());
+        if qaction.is_none(){
+            return;
+        }
+
+        qaction.unwrap()[self.current_action_index] += self.reward as f32;
     }
 }
